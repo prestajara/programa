@@ -45,8 +45,10 @@
     .module-orbit-ring-outer { position: absolute; inset: -8px; border-radius: 50%; border: 2px dashed var(--chip-border); border-bottom-color: var(--primary); animation: spinReverse 3.2s linear infinite; opacity: 0.55; }
     .module-logo-circle { width: 72px; height: 72px; border-radius: 50%; background: var(--topbar-bg); display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08); border: 1px solid var(--border-color); animation: logoBreath 2s ease-in-out infinite; overflow: hidden; padding: 10px; z-index: 2; }
     .module-logo-circle img { width: 100%; height: 100%; object-fit: contain; }
-    .module-glass-title { font-size: 1.2rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px; letter-spacing: 0.2px; line-height: 1.3; }
-    .module-glass-subtitle { font-size: 0.8rem; font-weight: 500; color: #64748b; display: inline-flex; align-items: center; gap: 3px; margin-bottom: 18px; }
+    
+    .module-glass-title { font-size: 1.2rem; font-weight: 700; color: var(--text-main); margin-bottom: 6px; letter-spacing: 0.2px; line-height: 1.3; transition: opacity 0.3s ease; }
+    .module-glass-subtitle { font-size: 0.8rem; font-weight: 500; color: #64748b; display: inline-flex; align-items: center; gap: 3px; margin-bottom: 18px; transition: opacity 0.3s ease; }
+    
     .module-shimmer-track { width: 100%; max-width: 180px; height: 4px; background: var(--chip-bg); border-radius: 10px; overflow: hidden; position: relative; border: 1px solid var(--border-color); }
     .module-shimmer-bar { position: absolute; top: 0; left: -50%; width: 55%; height: 100%; background: var(--primary); border-radius: 10px; animation: shimmerSlide 1.3s ease-in-out infinite; }
     .dot-pulse span { animation: dotBlink 1.4s infinite both; display: inline-block; font-weight: 700; }
@@ -82,15 +84,17 @@
           <div class="module-orbit-ring-outer"></div>
           <div class="module-orbit-ring"></div>
           <div class="module-logo-circle">
-            <!-- LOGO LOCAL -->
             <img src="/programa/logo.png" alt="Logo">
           </div>
         </div>
-        <div class="module-glass-title">Iniciando PrestaJara...</div>
+        
+        <!-- Textos dinámicos (tienen ID para cambiarlos con JS) -->
+        <div class="module-glass-title" id="splashTitle">Iniciando PrestaJara...</div>
         <div class="module-glass-subtitle">
-          <span>Estableciendo conexión segura</span>
+          <span id="splashSubtitle">Estableciendo conexión segura</span>
           <span class="dot-pulse"><span>.</span><span>.</span><span>.</span></span>
         </div>
+        
         <div class="module-shimmer-track">
           <div class="module-shimmer-bar"></div>
         </div>
@@ -107,7 +111,7 @@
   <iframe id="app-frame" allowfullscreen="true"></iframe>
 
   <script>
-    // 1. CARGA DEL IFRAME CON EL NUEVO ENLACE
+    // 1. CARGA DEL IFRAME
     var scriptUrl = "https://script.google.com/macros/s/AKfycbwRYGjpeeMTbsc4WplRQQaZmmocrCZnHoHLiqNQdqLypNzOlIPUiS_ZvivaQEAfT8Nk/exec";
     var params = window.location.search;
     var appFrame = document.getElementById('app-frame');
@@ -125,57 +129,92 @@
     // 3. CAPTURA DEL EVENTO DE INSTALACIÓN
     let deferredPrompt;
     window.addEventListener('beforeinstallprompt', (e) => {
-      // Prevenir el banner automático
       e.preventDefault();
       deferredPrompt = e;
-      // Le avisamos al iframe que la instalación está disponible
       appFrame.contentWindow.postMessage({ type: 'PWA_AVAILABLE' }, '*');
     });
 
-    // 4. TIMERS DE RESCATE PARA EL SPLASH SCREEN
-    let rescueTimer = setTimeout(() => {
-        const rescueBtn = document.getElementById('splashRescueBtn');
-        if (rescueBtn) rescueBtn.classList.add('show');
-    }, 8000);
-    
-    let hideTimer = setTimeout(() => {
-        document.getElementById('splash-screen').classList.add('hidden');
-    }, 15000);
+    // 4. LÓGICA DE MENSAJES ROTATIVOS (7 mensajes cada 2 segundos)
+    const splashMessages = [
+      { title: "Iniciando PrestaJara...", sub: "Estableciendo conexión segura" },
+      { title: "Autenticando sesión...", sub: "Verificando credenciales" },
+      { title: "Sincronizando base...", sub: "Descargando información" },
+      { title: "Construyendo entorno...", sub: "Cargando permisos y roles" },
+      { title: "Preparando interfaz...", sub: "Aplicando personalización" },
+      { title: "Optimizando sistema...", sub: "Acelerando rendimiento" },
+      { title: "¡Casi listos!...", sub: "Desplegando plataforma" }
+    ];
+    let msgIndex = 0;
+    let msgInterval;
 
-    // 5. ESCUCHAR MENSAJES DESDE APPS SCRIPT
+    function startSplashMessages() {
+      const titleEl = document.getElementById('splashTitle');
+      const subEl = document.getElementById('splashSubtitle');
+      msgIndex = 0;
+      if (titleEl) titleEl.innerText = splashMessages[msgIndex].title;
+      if (subEl) subEl.innerText = splashMessages[msgIndex].sub;
+      
+      clearInterval(msgInterval);
+      msgInterval = setInterval(() => {
+        msgIndex = (msgIndex + 1) % splashMessages.length;
+        if (titleEl && subEl) {
+          titleEl.innerText = splashMessages[msgIndex].title;
+          subEl.innerText = splashMessages[msgIndex].sub;
+        }
+      }, 2000);
+    }
+
+    function stopSplashMessages() {
+      clearInterval(msgInterval);
+    }
+
+    // 5. LÓGICA DE TIMERS DE RESCATE AJUSTADOS
+    let rescueTimer;
+    let hideTimer;
+
+    function startTimers() {
+      clearTimeout(rescueTimer);
+      clearTimeout(hideTimer);
+      const rescueBtn = document.getElementById('splashRescueBtn');
+      if(rescueBtn) rescueBtn.classList.remove('show');
+      
+      // Aparece a los 16 segundos
+      rescueTimer = setTimeout(() => {
+          if (rescueBtn) rescueBtn.classList.add('show');
+      }, 16000);
+      
+      // Oculta forzosamente a los 25 segundos
+      hideTimer = setTimeout(() => {
+          document.getElementById('splash-screen').classList.add('hidden');
+          stopSplashMessages();
+      }, 25000);
+    }
+
+    // Iniciar rutinas al cargar la página
+    startSplashMessages();
+    startTimers();
+
+    // 6. ESCUCHAR MENSAJES DESDE APPS SCRIPT
     window.addEventListener('message', function(event) {
-      // A) Ocultar el Splash Screen y limpiar timers
       if (event.data === 'HIDE_SPLASH_SCREEN') {
         document.getElementById('splash-screen').classList.add('hidden');
         clearTimeout(rescueTimer);
         clearTimeout(hideTimer);
+        stopSplashMessages();
         const rescueBtn = document.getElementById('splashRescueBtn');
         if(rescueBtn) rescueBtn.classList.remove('show');
       }
       
-      // B) Mostrar de nuevo el Splash Screen (ej: recargas internas)
       if (event.data === 'SHOW_SPLASH_SCREEN') {
         document.getElementById('splash-screen').classList.remove('hidden');
-        // Reiniciar timers de rescate
-        clearTimeout(rescueTimer);
-        clearTimeout(hideTimer);
-        const rescueBtn = document.getElementById('splashRescueBtn');
-        if(rescueBtn) rescueBtn.classList.remove('show');
-        
-        rescueTimer = setTimeout(() => {
-            if (rescueBtn) rescueBtn.classList.add('show');
-        }, 8000);
-        hideTimer = setTimeout(() => {
-            document.getElementById('splash-screen').classList.add('hidden');
-        }, 15000);
+        startSplashMessages();
+        startTimers();
       }
 
-      // C) Disparar el prompt de instalación de PWA
       if (event.data === 'TRIGGER_INSTALL' && deferredPrompt) {
         deferredPrompt.prompt();
         deferredPrompt.userChoice.then((choiceResult) => {
           if (choiceResult.outcome === 'accepted') {
-             // Avisar al iframe que se instaló para ocultar el botón
              appFrame.contentWindow.postMessage({ type: 'PWA_INSTALLED' }, '*');
           }
           deferredPrompt = null;
