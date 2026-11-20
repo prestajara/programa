@@ -1,8 +1,10 @@
-const CACHE_NAME = 'prestajara-pwa-v1';
+// CAMBIO IMPORTANTE: Subimos a v3 para forzar la actualización
+const CACHE_NAME = 'prestajara-pwa-v3'; 
 const urlsToCache = [
   '/programa/index.html',
   '/programa/manifest.json',
-  '/programa/logo.png'
+  '/programa/logo.png',
+  '/programa/icon-pwa.jpg' // <-- ACTUALIZADO A JPG
 ];
 
 // Instalación: Guarda los archivos base
@@ -15,7 +17,7 @@ self.addEventListener('install', event => {
   );
 });
 
-// Activación: Limpia cachés viejos si cambias la versión (v2, v3...)
+// Activación: Limpia cachés viejos (Borra v1 y v2)
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(cacheNames => {
@@ -30,7 +32,7 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Fetch: Sirve los archivos locales si no hay internet (solo el index)
+// Fetch: Sirve los archivos locales
 self.addEventListener('fetch', event => {
   event.respondWith(
     caches.match(event.request)
