@@ -1,10 +1,8 @@
-// CAMBIO IMPORTANTE: Subimos a v3 para forzar la actualización
-const CACHE_NAME = 'prestajara-pwa-v3'; 
+const CACHE_NAME = 'prestajara-pwa-v4'; 
 const urlsToCache = [
   '/programa/index.html',
   '/programa/manifest.json',
-  '/programa/logo.png',
-  '/programa/icon-pwa.jpg' // <-- ACTUALIZADO A JPG
+  '/programa/logo.png'
 ];
 
 // Instalación: Guarda los archivos base
@@ -17,7 +15,7 @@ self.addEventListener('install', event => {
   );
 });
 
-// Activación: Limpia cachés viejos (Borra v1 y v2)
+// Activación: Limpia cachés viejos
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(cacheNames => {
@@ -34,6 +32,13 @@ self.addEventListener('activate', event => {
 
 // Fetch: Sirve los archivos locales
 self.addEventListener('fetch', event => {
+  
+  // TRUCO DE ORO: Si la petición NO es de nuestro GitHub (ej. es de Google Apps Script), 
+  // ignoramos el Service Worker y dejamos que pase a máxima velocidad.
+  if (!event.request.url.startsWith(self.location.origin)) {
+    return; 
+  }
+
   event.respondWith(
     caches.match(event.request)
       .then(response => {
