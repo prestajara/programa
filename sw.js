@@ -1,7 +1,8 @@
 const CACHE_NAME = 'prestajara-pwa-v1';
 const urlsToCache = [
   '/programa/index.html',
-  '/programa/manifest.json'
+  '/programa/manifest.json',
+  '/programa/logo.png'
 ];
 
 // Instalación: Guarda los archivos base
