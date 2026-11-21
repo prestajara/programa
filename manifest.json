@@ -10,14 +10,8 @@
     {
       "src": "/programa/logo.png",
       "type": "image/png",
-      "sizes": "512x512",
-      "purpose": "any"
-    },
-    {
-      "src": "/programa/icon-pwa.jpg",
-      "type": "image/jpeg",
-      "sizes": "512x512",
-      "purpose": "maskable"
+      "sizes": "192x192 512x512 1080x1080",
+      "purpose": "any maskable"
     }
   ]
 }
