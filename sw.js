@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prestajara-pwa-v4'; 
+const CACHE_NAME = 'prestajara-pwa-v5'; 
 const urlsToCache = [
   '/programa/index.html',
   '/programa/manifest.json',
@@ -30,11 +30,8 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Fetch: Sirve los archivos locales
+// Fetch: Sirve los archivos locales y deja pasar a Apps Script a máxima velocidad
 self.addEventListener('fetch', event => {
-  
-  // TRUCO DE ORO: Si la petición NO es de nuestro GitHub (ej. es de Google Apps Script), 
-  // ignoramos el Service Worker y dejamos que pase a máxima velocidad.
   if (!event.request.url.startsWith(self.location.origin)) {
     return; 
   }
