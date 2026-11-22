@@ -1,4 +1,4 @@
-const CACHE_NAME = 'prestajara-pwa-v5'; 
+const CACHE_NAME = 'prestajara-pwa-v6'; 
 const urlsToCache = [
   '/programa/index.html',
   '/programa/manifest.json',
@@ -30,12 +30,22 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Fetch: Sirve los archivos locales y deja pasar a Apps Script a máxima velocidad
+// Fetch: Sirve los archivos locales y respeta la velocidad
 self.addEventListener('fetch', event => {
-  if (!event.request.url.startsWith(self.location.origin)) {
+  const url = new URL(event.request.url);
+  
+  // 1. Si la petición NO es de nuestro GitHub (ej. es de Google Apps Script), pasa libre a máxima velocidad
+  if (!url.origin.includes(self.location.origin)) {
     return; 
   }
 
+  // 2. Si la petición incluye "?reload=", es el botón de rescate del celular. NO USES CACHÉ, fuerza la red.
+  if (url.searchParams.has('reload')) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
+  // 3. Comportamiento normal PWA
   event.respondWith(
     caches.match(event.request)
       .then(response => {
