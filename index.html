@@ -11,7 +11,6 @@
   <!-- LOGO PARA iPHONE (Y GENERAL) -->
   <link rel="apple-touch-icon" href="/programa/logo.png">
 
-
   <style>
     /* VARIABLES GLOBALES BASE (Tema Claro por Defecto) */
     :root {
@@ -23,8 +22,7 @@
       --text-main: #1e293b;
     }
 
-
-    /* MODO OSCURO GLOBAL (Se activa añadiendo la clase 'dark-mode' al html o body) */
+    /* MODO OSCURO GLOBAL */
     html.dark-mode, body.dark-mode {
       --bg-color: #121212 !important; 
       --text-main: #f8fafc !important;
@@ -40,7 +38,6 @@
       position: fixed; top: 0; left: 0; width: 100%; height: 100%; border: none; z-index: 1;
     }
 
-
     /* ESTILOS DEL SPLASH SCREEN (GLASSMORPHISM) */
     #splash-screen {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: var(--bg-color); z-index: 9999; display: flex; align-items: center; justify-content: center; transition: opacity 0.6s ease, visibility 0.6s ease;
@@ -49,18 +46,15 @@
       opacity: 0; visibility: hidden;
     }
 
-
     .module-glass-loader-wrapper { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; padding: 20px; }
     
-    /* Tarjeta Glassmorphism adaptativa */
     .module-glass-card { position: relative; display: flex; flex-direction: column; align-items: center; padding: 38px 46px; border-radius: 26px; background: rgba(255, 255, 255, 0.78); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid var(--border-color); box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.6) inset; max-width: 380px; width: 100%; text-align: center; overflow: hidden; transition: background 0.3s ease, border-color 0.3s ease; }
     
     html.dark-mode .module-glass-card, body.dark-mode .module-glass-card {
-      background: rgba(30, 41, 59, 0.85); /* Fondo azul oscuro transparente */
+      background: rgba(30, 41, 59, 0.85);
       border-color: rgba(255, 255, 255, 0.1);
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
     }
-
 
     .module-glass-core { position: relative; width: 96px; height: 96px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; }
     .module-orbit-ring { position: absolute; inset: 0; border-radius: 50%; border: 3px solid transparent; border-top-color: var(--primary); border-right-color: var(--primary); animation: spin 1.15s cubic-bezier(0.5, 0.15, 0.5, 0.85) infinite; opacity: 0.9; }
@@ -80,13 +74,11 @@
     .dot-pulse span:nth-child(2) { animation-delay: 0.2s; }
     .dot-pulse span:nth-child(3) { animation-delay: 0.4s; }
 
-
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     @keyframes spinReverse { 0% { transform: rotate(360deg); } 100% { transform: rotate(0deg); } }
     @keyframes logoBreath { 0%, 100% { transform: scale(0.96); } 50% { transform: scale(1.04); } }
     @keyframes shimmerSlide { 0% { left: -55%; } 100% { left: 105%; } }
     @keyframes dotBlink { 0%, 80%, 100% { opacity: 0.2; } 40% { opacity: 1; } }
-
 
     /* Estilos para el botón de rescate (Splash Screen) */
     .splash-rescue-btn {
@@ -104,7 +96,6 @@
 </head>
 <body>
 
-
   <!-- SPLASH SCREEN -->
   <div id="splash-screen">
     <div class="module-glass-loader-wrapper">
@@ -113,12 +104,10 @@
           <div class="module-orbit-ring-outer"></div>
           <div class="module-orbit-ring"></div>
           <div class="module-logo-circle">
-            <!-- LOGO LOCAL -->
             <img src="/programa/logo.png" alt="Logo">
           </div>
         </div>
         
-        <!-- Textos dinámicos -->
         <div class="module-glass-title" id="splashTitle">Iniciando PrestaJara...</div>
         <div class="module-glass-subtitle">
           <span id="splashSubtitle">Estableciendo conexión segura</span>
@@ -131,32 +120,34 @@
       </div>
     </div>
     
-    <!-- Botón de rescate -->
-    <button id="splashRescueBtn" class="splash-rescue-btn" onclick="window.location.reload()">
+    <!-- NUEVO: Botón de rescate forzado para PWA -->
+    <button id="splashRescueBtn" class="splash-rescue-btn" onclick="forceAppReload()">
       <svg style="width:16px;height:16px" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2A10 10 0 1 0 22 12A10 10 0 0 0 12 2M18 11H13L14.81 9.19A3.94 3.94 0 0 0 12 8A4 4 0 1 0 15.86 13H17.91A6 6 0 1 1 12 6A5.91 5.91 0 0 1 16.22 7.78L18 6Z" /></svg>
       La carga demora. Clic para recargar.
     </button>
   </div>
 
-
   <iframe id="app-frame" allowfullscreen="true"></iframe>
 
-
   <script>
-    // 0. VERIFICAR TEMA GUARDADO EN LOCALSTORAGE (Antes de cargar nada)
+    // 0. VERIFICAR TEMA GUARDADO
     const savedTheme = localStorage.getItem('userTema');
     if (savedTheme === 'dark') {
       document.body.classList.add('dark-mode');
       document.getElementById('metaThemeColor').setAttribute("content", "#121212");
     }
 
-
-    // 1. CARGA DEL IFRAME
+    // 1. CARGA DEL IFRAME (Preparado para URL Limpia)
     var scriptUrl = "https://script.google.com/macros/s/AKfycbzkLmeFLZq0B9iSvIJGz6UBZG6n0PuDsMESmwzJI0Vjh6xnG6B4UoVuIBE7TPxIo2Z3/exec";
-    var params = window.location.search;
+    
+    // Si hay parámetros en la URL (alguien intentó copiar y pegar el link viejo), los eliminamos visualmente por seguridad
+    if (window.location.search && window.location.search.includes('rol=')) {
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+    
     var appFrame = document.getElementById('app-frame');
-    appFrame.src = scriptUrl + params;
-
+    // Siempre cargamos la URL base limpia
+    appFrame.src = scriptUrl + "?v=" + new Date().getTime();
 
     // 2. REGISTRO DEL SERVICE WORKER (PWA)
     if ('serviceWorker' in navigator) {
@@ -167,8 +158,7 @@
       });
     }
 
-
-    // 3. CAPTURA DEL EVENTO DE INSTALACIÓN
+    // 3. CAPTURA DE INSTALACIÓN
     let deferredPrompt;
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
@@ -176,8 +166,7 @@
       appFrame.contentWindow.postMessage({ type: 'PWA_AVAILABLE' }, '*');
     });
 
-
-    // 4. LÓGICA DE 40 MENSAJES ROTATIVOS (Cada 2 segundos = 80 seg de cobertura)
+    // 4. LÓGICA DE MENSAJES ROTATIVOS
     const splashMessages = [
       { title: "Iniciando PrestaJara...", sub: "Estableciendo conexión segura" },
       { title: "Autenticando sesión...", sub: "Verificando credenciales de acceso" },
@@ -185,44 +174,10 @@
       { title: "Construyendo entorno...", sub: "Cargando permisos y accesos" },
       { title: "Preparando interfaz...", sub: "Aplicando tu diseño personalizado" },
       { title: "Optimizando sistema...", sub: "Acelerando el motor de renderizado" },
-      { title: "Validando seguridad...", sub: "Comprobando encriptación de datos" },
-      { title: "Cargando catálogos...", sub: "Obteniendo lista de artículos" },
-      { title: "Actualizando clientes...", sub: "Sincronizando expedientes y saldos" },
-      { title: "Revisando caja...", sub: "Validando el estado financiero" },
-      { title: "Preparando reportes...", sub: "Compilando historial de transacciones" },
-      { title: "Configurando alertas...", sub: "Revisando notificaciones pendientes" },
-      { title: "Alineando widgets...", sub: "Cargando herramientas del dashboard" },
-      { title: "Activando biometría...", sub: "Inicializando captura fotográfica" },
-      { title: "Revisando contratos...", sub: "Validando firmas y documentos" },
-      { title: "Estamos demorando...", sub: "Hay mucha información por procesar" },
-      { title: "No cierres la página...", sub: "El servidor sigue trabajando" },
-      { title: "Generando caché...", sub: "Para que tu navegación sea más rápida" },
-      { title: "Estructurando menús...", sub: "Acomodando barras de navegación" },
-      { title: "Validando permisos...", sub: "Revisando qué módulos puedes ver" },
-      { title: "Verificando red...", sub: "Asegurando una conexión estable" },
-      { title: "Procesando tablas...", sub: "Ordenando registros de la base de datos" },
-      { title: "Limpiando variables...", sub: "Preparando un entorno limpio" },
-      { title: "Ajustando visibilidad...", sub: "Cargando preferencias de usuario" },
-      { title: "Recuperando avatares...", sub: "Buscando fotos de perfil" },
-      { title: "Cargando tipografías...", sub: "Aplicando estilos visuales" },
-      { title: "Iniciando módulos...", sub: "Despertando funciones internas" },
-      { title: "Calculando saldos...", sub: "Actualizando números en tiempo real" },
-      { title: "Revisando inventario...", sub: "Validando existencias actuales" },
-      { title: "¡Paciencia por favor!...", sub: "Casi terminamos de ensamblar todo" },
-      { title: "Comprobando sesión...", sub: "Verificando dispositivo actual" },
-      { title: "Alistando gráficas...", sub: "Preparando el análisis visual" },
-      { title: "Cargando historial...", sub: "Obteniendo datos de ventas anteriores" },
-      { title: "Revisando bitácora...", sub: "Sincronizando auditoría de eventos" },
-      { title: "Configurando teclado...", sub: "Activando accesos rápidos" },
-      { title: "Estableciendo PWA...", sub: "Validando instalación de aplicación" },
-      { title: "Últimos ajustes...", sub: "Afinando detalles de la pantalla" },
-      { title: "Esto tarda un poco...", sub: "Pero garantiza que no haya errores" },
-      { title: "Finalizando carga...", sub: "Iniciando despliegue de interfaz" },
-      { title: "¡Casi listos!...", sub: "A punto de mostrar tu panel" }
+      { title: "Validando seguridad...", sub: "Comprobando encriptación de datos" }
     ];
     let msgIndex = 0;
     let msgInterval;
-
 
     function startSplashMessages() {
       const titleEl = document.getElementById('splashTitle');
@@ -238,19 +193,16 @@
           titleEl.innerText = splashMessages[msgIndex].title;
           subEl.innerText = splashMessages[msgIndex].sub;
         }
-      }, 2000); // Cambia cada 2 segundos
+      }, 2000);
     }
-
 
     function stopSplashMessages() {
       clearInterval(msgInterval);
     }
 
-
-    // 5. LÓGICA DE TIMERS DE RESCATE
+    // 5. TIMERS DE RESCATE
     let rescueTimer;
     let hideTimer;
-
 
     function startTimers() {
       clearTimeout(rescueTimer);
@@ -258,25 +210,26 @@
       const rescueBtn = document.getElementById('splashRescueBtn');
       if(rescueBtn) rescueBtn.classList.remove('show');
       
-      // Aparece botón de rescate a los 18 segundos
       rescueTimer = setTimeout(() => {
           if (rescueBtn) rescueBtn.classList.add('show');
       }, 18000);
       
-      // Oculta forzosamente a los 50 segundos (margen muy amplio para cuentas grandes)
       hideTimer = setTimeout(() => {
           document.getElementById('splash-screen').classList.add('hidden');
           stopSplashMessages();
       }, 50000);
     }
 
+    // NUEVO: Función de Recarga Forzada Anti-Bloqueo Celular
+    window.forceAppReload = function() {
+        // Le agregamos un parámetro dinámico a la ruta para obligar al Service Worker y al navegador a recargar todo
+        window.location.href = window.location.pathname + '?reload=' + new Date().getTime();
+    };
 
-    // Iniciar rutinas
     startSplashMessages();
     startTimers();
 
-
-    // 6. ESCUCHAR MENSAJES DESDE APPS SCRIPT
+    // 6. ESCUCHAR MENSAJES DESDE APPS SCRIPT (INTERCEPCIÓN DE SEGURIDAD)
     window.addEventListener('message', function(event) {
       
       // A) Ocultar el Splash Screen
@@ -296,8 +249,7 @@
         startTimers();
       }
 
-
-      // C) Aplicar Modo Oscuro desde la base de datos (Si es la primera vez que entra)
+      // C) Aplicar Tema
       if (event.data && event.data.type === 'SYNC_THEME') {
           if (event.data.tema === 'dark') {
               document.body.classList.add('dark-mode');
@@ -310,8 +262,7 @@
           }
       }
 
-
-      // D) Disparar prompt de instalación PWA
+      // D) Disparar prompt PWA
       if (event.data === 'TRIGGER_INSTALL' && deferredPrompt) {
         deferredPrompt.prompt();
         deferredPrompt.userChoice.then((choiceResult) => {
@@ -320,6 +271,24 @@
           }
           deferredPrompt = null;
         });
+      }
+
+      // E) NUEVO: Apps Script solicita la sesión actual para renderizar (Opción 1)
+      if (event.data === 'REQUEST_SESSION_DATA') {
+          const sessionData = localStorage.getItem('userData');
+          if (sessionData) {
+              // Devolver sesión
+              appFrame.contentWindow.postMessage({ type: 'DELIVER_SESSION_DATA', payload: sessionData }, '*');
+          } else {
+              // No hay sesión, bloquear y mandar al login
+              appFrame.contentWindow.postMessage({ type: 'NO_SESSION_FOUND' }, '*');
+          }
+      }
+
+      // F) NUEVO: Borrado seguro (Cierre de Sesión / Modo Quiosco)
+      if (event.data === 'CLEAR_SESSION_DATA') {
+          localStorage.removeItem('userData');
+          sessionStorage.removeItem('userData');
       }
     });
   </script>
