@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>PrestaJara</title>
   
   <!-- CONEXIÓN PWA -->
@@ -39,14 +39,16 @@
     }
 
     /* ESTILOS DEL SPLASH SCREEN (GLASSMORPHISM) */
+    /* Ajuste para móviles: usar min-height en lugar de height fijo para evitar recortes */
     #splash-screen {
-      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background-color: var(--bg-color); z-index: 9999; display: flex; align-items: center; justify-content: center; transition: opacity 0.6s ease, visibility 0.6s ease;
+      position: fixed; top: 0; left: 0; width: 100vw; min-height: 100vh; min-height: -webkit-fill-available; background-color: var(--bg-color); z-index: 9999; display: flex; align-items: center; justify-content: center; transition: opacity 0.5s ease, visibility 0.5s ease; flex-direction: column;
     }
     #splash-screen.hidden {
       opacity: 0; visibility: hidden;
     }
 
-    .module-glass-loader-wrapper { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; padding: 20px; }
+    /* Ajuste para dar espacio al botón inferior */
+    .module-glass-loader-wrapper { display: flex; align-items: center; justify-content: center; width: 100%; flex: 1; padding: 20px; padding-bottom: 80px; }
     
     .module-glass-card { position: relative; display: flex; flex-direction: column; align-items: center; padding: 38px 46px; border-radius: 26px; background: rgba(255, 255, 255, 0.78); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid var(--border-color); box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(255, 255, 255, 0.6) inset; max-width: 380px; width: 100%; text-align: center; overflow: hidden; transition: background 0.3s ease, border-color 0.3s ease; }
     
@@ -80,18 +82,39 @@
     @keyframes shimmerSlide { 0% { left: -55%; } 100% { left: 105%; } }
     @keyframes dotBlink { 0%, 80%, 100% { opacity: 0.2; } 40% { opacity: 1; } }
 
-    /* Estilos para el botón de rescate (Splash Screen) */
+    /* ESTILOS CORREGIDOS PARA EL BOTÓN DE RESCATE (SPLASH SCREEN) */
     .splash-rescue-btn {
-      position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
-      padding: 10px 20px; background: rgba(0,0,0,0.5); color: white;
-      border: 1px solid rgba(255,255,255,0.2); border-radius: 8px;
-      font-size: 0.85rem; cursor: pointer; transition: all 0.3s;
-      display: none; opacity: 0; align-items: center; gap: 8px; font-family: 'Poppins', sans-serif;
+      position: absolute; 
+      /* Subimos el botón y usamos safe-area-inset para evitar que las barras móviles lo tapen */
+      bottom: calc(40px + env(safe-area-inset-bottom)); 
+      left: 50%; 
+      transform: translateX(-50%);
+      padding: 12px 24px; 
+      background: rgba(0,0,0,0.65); 
+      color: white;
+      border: 1px solid rgba(255,255,255,0.3); 
+      border-radius: 50px; /* Bordes más redondeados tipo pastilla */
+      font-size: 0.9rem; 
+      font-weight: 500;
+      cursor: pointer; 
+      transition: all 0.3s;
+      display: none; 
+      opacity: 0; 
+      align-items: center; 
+      gap: 10px; 
+      font-family: 'Poppins', sans-serif;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      z-index: 10000;
+      white-space: nowrap;
     }
-    html.dark-mode .splash-rescue-btn, body.dark-mode .splash-rescue-btn { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.3); }
+    html.dark-mode .splash-rescue-btn, body.dark-mode .splash-rescue-btn { 
+      background: rgba(255,255,255,0.15); 
+      border-color: rgba(255,255,255,0.4); 
+      color: #f8fafc;
+    }
     .splash-rescue-btn.show { display: flex; animation: fadeInRescue 0.5s forwards; }
-    .splash-rescue-btn:hover { background: rgba(0,0,0,0.8); border-color: rgba(255,255,255,0.5); }
-    @keyframes fadeInRescue { from { opacity: 0; bottom: 20px; } to { opacity: 1; bottom: 30px; } }
+    .splash-rescue-btn:hover { background: rgba(0,0,0,0.85); border-color: rgba(255,255,255,0.6); transform: translateX(-50%) translateY(-2px); }
+    @keyframes fadeInRescue { from { opacity: 0; bottom: calc(20px + env(safe-area-inset-bottom)); } to { opacity: 1; bottom: calc(40px + env(safe-area-inset-bottom)); } }
   </style>
 </head>
 <body>
@@ -120,9 +143,9 @@
       </div>
     </div>
     
-    <!-- NUEVO: Botón de rescate forzado para PWA -->
+    <!-- Botón de rescate reposicionado -->
     <button id="splashRescueBtn" class="splash-rescue-btn" onclick="forceAppReload()">
-      <svg style="width:16px;height:16px" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2A10 10 0 1 0 22 12A10 10 0 0 0 12 2M18 11H13L14.81 9.19A3.94 3.94 0 0 0 12 8A4 4 0 1 0 15.86 13H17.91A6 6 0 1 1 12 6A5.91 5.91 0 0 1 16.22 7.78L18 6Z" /></svg>
+      <svg style="width:18px;height:18px" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2A10 10 0 1 0 22 12A10 10 0 0 0 12 2M18 11H13L14.81 9.19A3.94 3.94 0 0 0 12 8A4 4 0 1 0 15.86 13H17.91A6 6 0 1 1 12 6A5.91 5.91 0 0 1 16.22 7.78L18 6Z" /></svg>
       La carga demora. Clic para recargar.
     </button>
   </div>
@@ -140,13 +163,12 @@
     // 1. CARGA DEL IFRAME (Preparado para URL Limpia)
     var scriptUrl = "https://script.google.com/macros/s/AKfycbwTfQR7Uy5ltTlNmy0a6GxuLILYRIXTSqHPd6ov7oURbZHBV_RLtg8IjU-QNrEXWyAb2g/exec";
     
-    // Si hay parámetros en la URL (alguien intentó copiar y pegar el link viejo), los eliminamos visualmente por seguridad
-    if (window.location.search && window.location.search.includes('rol=')) {
+    // Si hay parámetros residuales, limpiamos la barra de direcciones de inmediato
+    if (window.location.search && (window.location.search.includes('rol=') || window.location.search.includes('reload='))) {
         window.history.replaceState({}, document.title, window.location.pathname);
     }
     
     var appFrame = document.getElementById('app-frame');
-    // Siempre cargamos la URL base limpia
     appFrame.src = scriptUrl + "?v=" + new Date().getTime();
 
     // 2. REGISTRO DEL SERVICE WORKER (PWA)
@@ -200,56 +222,66 @@
       clearInterval(msgInterval);
     }
 
-    // 5. TIMERS DE RESCATE
+    // 5. TIMERS DE RESCATE Y AUTO-OCULTADO (LA SOLUCIÓN AL INICIO LENTO)
     let rescueTimer;
     let hideTimer;
+    let fallbackHideTimer; // Nuevo timer de emergencia
 
     function startTimers() {
       clearTimeout(rescueTimer);
       clearTimeout(hideTimer);
+      clearTimeout(fallbackHideTimer);
+      
       const rescueBtn = document.getElementById('splashRescueBtn');
       if(rescueBtn) rescueBtn.classList.remove('show');
       
+      // El botón de rescate aparece a los 12 segundos (antes era 18)
       rescueTimer = setTimeout(() => {
           if (rescueBtn) rescueBtn.classList.add('show');
-      }, 18000);
+      }, 12000);
       
+      // NUEVA SOLUCIÓN: Si en 4.5 segundos Apps Script no nos dijo que lo escondiéramos (por retraso en la PWA),
+      // lo escondemos a la fuerza para que el usuario pueda ver el panel.
+      fallbackHideTimer = setTimeout(() => {
+          document.getElementById('splash-screen').classList.add('hidden');
+          stopSplashMessages();
+      }, 4500);
+
+      // Cierre definitivo de seguridad extrema a los 30 segundos
       hideTimer = setTimeout(() => {
           document.getElementById('splash-screen').classList.add('hidden');
           stopSplashMessages();
-      }, 50000);
+      }, 30000);
     }
 
-    // NUEVO: Función de Recarga Forzada Anti-Bloqueo Celular
     window.forceAppReload = function() {
-        // Le agregamos un parámetro dinámico a la ruta para obligar al Service Worker y al navegador a recargar todo
         window.location.href = window.location.pathname + '?reload=' + new Date().getTime();
     };
 
     startSplashMessages();
     startTimers();
 
-    // 6. ESCUCHAR MENSAJES DESDE APPS SCRIPT (INTERCEPCIÓN DE SEGURIDAD)
+    // 6. ESCUCHAR MENSAJES DESDE APPS SCRIPT
     window.addEventListener('message', function(event) {
       
-      // A) Ocultar el Splash Screen
+      // Ocultar el Splash Screen
       if (event.data === 'HIDE_SPLASH_SCREEN') {
         document.getElementById('splash-screen').classList.add('hidden');
         clearTimeout(rescueTimer);
         clearTimeout(hideTimer);
+        clearTimeout(fallbackHideTimer);
         stopSplashMessages();
         const rescueBtn = document.getElementById('splashRescueBtn');
         if(rescueBtn) rescueBtn.classList.remove('show');
       }
       
-      // B) Mostrar Splash Screen
+      // Mostrar Splash Screen
       if (event.data === 'SHOW_SPLASH_SCREEN') {
         document.getElementById('splash-screen').classList.remove('hidden');
         startSplashMessages();
-        startTimers();
+        startTimers(); // Esto reinicia el contador de 4.5 segundos
       }
 
-      // C) Aplicar Tema
       if (event.data && event.data.type === 'SYNC_THEME') {
           if (event.data.tema === 'dark') {
               document.body.classList.add('dark-mode');
@@ -262,7 +294,6 @@
           }
       }
 
-      // D) Disparar prompt PWA
       if (event.data === 'TRIGGER_INSTALL' && deferredPrompt) {
         deferredPrompt.prompt();
         deferredPrompt.userChoice.then((choiceResult) => {
@@ -273,19 +304,15 @@
         });
       }
 
-      // E) NUEVO: Apps Script solicita la sesión actual para renderizar (Opción 1)
       if (event.data === 'REQUEST_SESSION_DATA') {
           const sessionData = localStorage.getItem('userData');
           if (sessionData) {
-              // Devolver sesión
               appFrame.contentWindow.postMessage({ type: 'DELIVER_SESSION_DATA', payload: sessionData }, '*');
           } else {
-              // No hay sesión, bloquear y mandar al login
               appFrame.contentWindow.postMessage({ type: 'NO_SESSION_FOUND' }, '*');
           }
       }
 
-      // F) NUEVO: Borrado seguro (Cierre de Sesión / Modo Quiosco)
       if (event.data === 'CLEAR_SESSION_DATA') {
           localStorage.removeItem('userData');
           sessionStorage.removeItem('userData');
